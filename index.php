@@ -1,34 +1,36 @@
 <?php
-include 'connection.php';
+include("connection.php");
 session_start();
-if(isset($_POST['submit']))
-{
-	$name = $_POST['name'];
-	$email= $_POST['email'];
-	$mobile= $_POST['mobile'];
-	$password= md5  ($_POST['password']);
-	
-    
-$query= mysqli_query($con,"SELECT * FROM register WHERE email='$email'");
-if (mysqli_num_rows($query)>0)
-{
-    echo"Email ID is already taken.";
-}
-else{
 
-	$sql = "insert into register (name,email,mobile,password) values ('".$name."','".$email."','".$mobile."','".$password."')";
-	$result = mysqli_query($con,$sql);
-	if ($result){
-		//echo"Data Stored Successfully";
-     header('location:index.php');
+if(isset($_POST['email'])&& isset($_POST['password'])){
+	$email = ($_POST['email']);
+	$password = md5($_POST['password']);
+	if(empty($email)){
+		header("Location :index.php?error=Please enter your Email");
+		exit();
 	}
-	else{
-		die(mysqli_error($con));
+	else if (empty($password)) {
+		header("Location :index.php?error=Please enter your Password");
+		exit();
+	}else {
+		$sql = "SELECT * FROM register WHERE email='$email' AND password='$password'";
+		$result = mysqli_query($con,$sql);
+		if (mysqli_num_rows($result)) {
+			$row = mysqli_fetch_assoc($result);
+			if ($row['email']===$email && $row['password']===$password) {
+				$_SESSION['email'] = $row['email'];
+				$_SESSION['id'] = $row['id'];
+				header("Location:home.php");
+				exit();
+			}
+		}
+		else {
+			header("Location:index.php?error = Wrong data entered, Please Login again.");
+			exit();
+		}
 	}
-}
 }
 ?>
-
 
 <!DOCTYPE html>
 <html lang="en">
@@ -65,9 +67,6 @@ else{
       <link rel="stylesheet" type="text/css" href="assets/icon/font-awesome/css/font-awesome.min.css">
       <!-- Style.css -->
       <link rel="stylesheet" type="text/css" href="assets/css/style.css">
-
-<!-- Icon for password -->
-      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
   </head>
 
   <body themebg-pattern="theme1">
@@ -133,72 +132,55 @@ else{
                 <div class="col-sm-12">
                     <!-- Authentication card start -->
                     
-                        <form class="md-float-material form-material" method="post">
+                        <form class="md-float-material form-material" action="index.php" method="post">
+                        <?php if(isset($_GET['error'])){
+			                    echo $_GET['error'];
+		                           }
+		                ?>
                             <div class="text-center">
                                 <img src="logo.jpg" height=50px width=150px alt="logo.png">
                             </div>
                             <div class="auth-box card">
                                 <div class="card-block">
-                                    <div class="row m-b-18">
+                                    <div class="row m-b-20">
                                         <div class="col-md-12">
-                                            <h3 class="text-center">Registration</h3>
+                                            <h3 class="text-center">Sign In</h3>
                                         </div>
                                     </div>
-
                                     <div class="form-group form-primary">
-                                        <input type="text" name="name" class="form-control" required="" pattern="[ .a-zA-Z]+" id="name"  title="Please enter only alphabets" onkeyup="this.value = this.value.toUpperCase();">
-                                        <!-- onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123)" -->
+                                        <input type="text" name="email" class="form-control" required="">
                                         <span class="form-bar"></span>
-                                        <label class="float-label">Name</label>
+                                        <label class="float-label" name="email">Your Email Address</label>
                                     </div>
                                     <div class="form-group form-primary">
-                                        <input type="text" name="email" class="form-control" required="" pattern="[^@\s]+@[^@\s]+\.[^@\s]+"title="Enter a valid email address"/>
+                                        <input type="password" name="password" class="form-control" required="">
                                         <span class="form-bar"></span>
-                                        <label class="float-label">Email</label>
+                                        <label class="float-label" name="password">Password</label>
                                     </div>
-
-                                    <div class="form-group form-primary">
-                                        <input type="text" name="mobile" class="form-control" required="" pattern="^[6-9]\d{9}$" title="Please enter 10 digits" onkeypress='return event.charCode >= 48 && event.charCode <= 57'>
-                                        <span class="form-bar"></span>
-                                        <label class="float-label">Mobile</label>
-                                    </div>
-
-
-                                    <div class="form-group form-primary">
-                                        <input type="password" id="password" name="password" class="form-control" required=""  pattern="(?=.*[!@#$%^&*])(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,12}" title="Password must contain 1 - Uppercase, 1 - Lowercase, 1- Number and 1 - Special Character and password length must between 8-12 characters.">
-                                        <span class="form-bar"></span> 
-                                        <i style="position: absolute; top: 20px;left: 380px;"class="fa-solid fa-eye" id="show-password"></i>
-                                        <label class="float-label">Password</label>
-                                    </div>
-
-                                    <div class="form-group form-primary">
-                                        <input type="password" id="confirm_password" class="form-control" required="" title="Please enter valid password" />
-                                        <span class="form-bar"></span> 
-                                        <!-- <i style="position: absolute; top: 20px;left: 380px;"class="fa-solid fa-eye" id="show-password"></i> -->
-                                        <label class="float-label">Confirm Password</label>
-                                    </div>
-
-                                    <div class="row m-t-18 text-left">
+                                    <div class="row m-t-25 text-left">
                                         <div class="col-12">
                                             
+                                            <div class="forgot-phone text-right f-right">
+                                                
+                                            </div>
                                         </div>
                                     </div>
                                     <div class="row m-t-30">
                                         <div class="col-md-12">
-                                            <button type="submit" name="submit"  class="btn btn-primary btn-md btn-block waves-effect waves-light text-center m-b-20">Register</button>
+                                            <button type="submit" name="submit" class="btn btn-primary btn-md btn-block waves-effect waves-light text-center m-b-20">Sign in</button>
                                         </div>
-                                        
                                     </div>
                                     <hr/>
                                     <div class="row">
                                         <div class="col-md-10">
-                                        <p class="text-inverse text-left">Already have an acccount? Please login <a href="index.php" style="text-decoration:underline"> Here</a></p>
+                                        <p class="text-inverse text-left">Forgot Password, Click <a href="forgot.php" style="text-decoration:underline"> Here</a></p>
+                                            <p class="text-inverse text-left">If you not a registered User please Signup <a href="registration.php" style="text-decoration:underline"> Here</a></p>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </form>
-                        <!-- end of form-->
+                        <!-- end of form -->
                 </div>
                 <!-- end of col-sm-12 -->
             </div>
@@ -206,10 +188,6 @@ else{
         </div>
         <!-- end of container-fluid -->
     </section>
-
-          <!-- Form Validation -->
-          <script type="text/javascript" src="validation.js"></script>
-
     <!-- Warning Section Starts -->
     <!-- Older IE warning message -->
     <!--[if lt IE 10]>
@@ -268,12 +246,6 @@ else{
 <script type="text/javascript" src="bower_components/i18next-browser-languagedetector/js/i18nextBrowserLanguageDetector.min.js"></script>
 <script type="text/javascript" src="bower_components/jquery-i18next/js/jquery-i18next.min.js"></script>
 <script type="text/javascript" src="assets/js/common-pages.js"></script>
-<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
-<!-- email availability checking -->
-<!-- <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-<script type="text/javascript" src="ajax-script.js"></script> -->
 </body>
 
 </html>
-
-
