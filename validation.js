@@ -1,3 +1,5 @@
+
+// Password - display icon
 const showPassword = document.querySelector("#show-password");
 const passwordField = document.querySelector("#password");
 
@@ -6,6 +8,8 @@ showPassword.addEventListener("click", function(){
     const type = passwordField.getAttribute("type") === "password" ? "text" : "password";
     passwordField.setAttribute("type", type);
   })
+
+
 
 //Confirm Password
 
@@ -22,8 +26,7 @@ function validatePassword(){
 
 password.onchange = validatePassword;
 confirm_password.onkeyup = validatePassword;
-
-
+ 
 
 
 

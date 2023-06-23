@@ -12,14 +12,6 @@ else{
  $row=$result->fetch_array();
 }
 
-
-
-
-
-
-
-
-
 // session_start();
 // include('connection.php');
 // if(isset($_POST['submit'])){
@@ -83,7 +75,7 @@ $income_result = $con->query($sql);
       <link rel="stylesheet" type="text/css" href="assets/css/style.css">
 
      
-     <!-- for making lowercase for email -->
+   
      <style>
 
         .color{

@@ -8,62 +8,19 @@ if (strlen($_SESSION['id']=='.$id.')) {
     if(isset($_POST['submit']))
   {
     $id=$_SESSION['id'];
+    $date=$_POST['date'];
+    $source=$_POST['source'];
+    $amount=$_POST['amount'];
 
-    // $name = $_FILES['photo']['name'];
-    // $target_dir = "profileimage/";
-    // $target_file = $target_dir.($_FILES["photo"]["name"]);
-    
-    
-    // echo $id;
-    // exit();
-    $photo=$id.'_'.($_POST['photo']);
-    // $filename = pathinfo($id,PATHINFO_FILENAME);
-   // $extension = $_POST['photo']->getClientOriginalExtension();
-    // $filenametostore = $filename.'.'.$extension;
-    // $path = $_POST['photo']->storeAs('profileimage',$filenametostore);
-   // echo $extension;
-  //  echo $filename;
- //   echo $photo;
-   // exit();
-
-    $name=$_POST['name'];
-    $dob=date('Y-m-d',strtotime($_POST['dob'])); 
-    $age=$_POST['age'];
-    $email=$_POST['email'];
-    $mobile=$_POST['mobile'];
-    $address=$_POST['address'];
-    // $password=md5($_POST['password']);
-    // $moved = move_uploaded_file($_FILES['photo']['tmp_name'], "profileimage/". $_FILES['photo']['name']);
-
-    // if( $moved ) {
-    //     echo "Successfully uploaded";         
-    //   } else {
-    //     echo "<script>Not uploaded because of error #</script>".$_FILES["file"]["error"];
-    //   }
-
-    // Valid file extensions
-    // $extensions_arr = array("jpg","jpeg","png","gif");
-
-
-    // Check extension
-    // if( in_array($extensions_arr) ){
-        
-        // Upload file
-        // if(move_uploaded_file($_FILES['file']['tmp_name'],'profileimage/'.$name)){
-    
-
-     $query=mysqli_query($con,"update register set photo='$photo', name ='$name', dob='$dob', age='$age', email = '$email', mobile='$mobile',address='$address' where id='$id'");
- 
-     if ($query) {
-    $msg="User profile has been updated.";
+     $query=mysqli_query($con, "update income set  date = '$date', source='$source', amount='$amount' where id='$id'");
+    if ($query) {
+    $msg="Income details has been updated.";
   }
   else
     {
       $msg="Something Went Wrong. Please try again.";
     }
-
   }
-// }}
   ?>
 
 <!DOCTYPE html>
@@ -106,44 +63,18 @@ if (strlen($_SESSION['id']=='.$id.')) {
       <link rel="stylesheet" type="text/css" href="assets/css/style.css">
 
      
-     <!-- Datepicker & Age Auto Calculate using Jquery(ui)-->
-     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-  <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
-  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-  <script>
- $(function() {
-    $("#dateofbirth").datepicker({
-    onSelect: function(value, ui) {
-        var today = new Date(),
-            age = today.getFullYear() - ui.selectedYear;
-        $('#age').val(age);
-    },
-       
-    dateFormat: 'dd-mm-yy',changeMonth: true,changeYear: true,yearRange:"c-100:c+100"
-    });  
-});
-    </script>
- 
+     <!-- for making lowercase for email -->
+     <style>
 
-<!-- Upload and Preview Profile Photo -->
-
-<script type='text/javascript'>
-function preview_image(event) 
-{
- var reader = new FileReader();
- reader.onload = function()
- {
-  var output = document.getElementById('output_image');
-  output.src = reader.result;
- }
- reader.readAsDataURL(event.target.files[0]);
-}
-</script>
-
-
+        .gmail_lower{
+            text-transform:lowercase !important;
+        }
+        </style>
   </head>
 
   <body>
+
+ 
   <!-- Pre-loader start -->
   <div class="theme-loader">
       <div class="loader-track">
@@ -218,7 +149,7 @@ function preview_image(event)
                               </div>
                           </div>
                       </div>
-                      <a href="home.php">
+                      <a href="#">
                           <img class="img-fluid" src="logo.jpg" width= 150px, height=150px alt="Theme-Logo" />
                       </a>
                       <a class="mobile-options waves-effect waves-light">
@@ -299,12 +230,12 @@ function preview_image(event)
                                     $name=$row['name'];
                                     
                                     ?>
-                                  <span><?php echo $name?></span>
+                                  <span><?php echo $name;?></span>
                                   <i class="ti-angle-down"></i>
                               </a>
                               <ul class="show-notification profile-notification">
                                   <li class="waves-effect waves-light">
-                                      <a href="#">
+                                      <a href="profile.php">
                                           <i class="ti-user"></i> Profile
                                       </a>
                                   </li>
@@ -329,11 +260,16 @@ function preview_image(event)
                               <div class="main-menu-header">
                                   <img class="img-80 img-radius" src="icon.jpg" alt="User-Profile-Image">
                                   <div class="user-details">
-                                      <span class="gmail_lower" id="more-details"><?php echo $name;?></span>
+                                  <?php
+                                    $id=$_SESSION['id'];
+                                    $ret=mysqli_query($con,"select name from register where id='$id'");
+                                    $row=mysqli_fetch_array($ret);
+                                    $name=$row['name'];
+                                    
+                                    ?>
+                                      <span id="more-details"><?php echo $name;?></span>
                                   </div>
                               </div>
-        
-                              
                           </div>
                           <!-- <div class="p-15 p-b-0">
                               <form class="form-material">
@@ -389,7 +325,7 @@ function preview_image(event)
                                           </a>
                                       </li>
                                       <li class=" ">
-                                          <a href="report.php" class="waves-effect waves-dark">
+                                          <a href="#" class="waves-effect waves-dark">
                                               <span class="pcoded-micon"><i class="ti-angle-right"></i></span>
                                               <span class="pcoded-mtext" data-i18n="nav.basic-components.alert">Report</span>
                                               <span class="pcoded-mcaret"></span>
@@ -562,7 +498,7 @@ function preview_image(event)
                               <div class="row align-items-center">
                                   <div class="col-md-8">
                                       <div class="page-header-title">
-                                          <h5 class="m-b-10">Profile</h5>
+                                          <h5 class="m-b-10">Income Report</h5>
                                           <p class="m-b-0">Welcome to Expense Express</p>
                                       </div>
                                   </div>
@@ -571,7 +507,13 @@ function preview_image(event)
                                           <li class="breadcrumb-item">
                                               <a href="home.php"> <i class="fa fa-home"></i> </a>
                                           </li>
-                                          <li class="breadcrumb-item"><a href="#!">Profile</a>
+                                          <li class="breadcrumb-item"><a href="income.php">Income</a>
+                                          </li>
+                                          </li>
+                                          <li class="breadcrumb-item"><a href="income report.php">Income Report</a>
+                                          </li>
+                                          </li>
+                                          <li class="breadcrumb-item"><a href="#!">Update Income</a>
                                           </li>
                                       </ul>
                                   </div>
@@ -582,274 +524,81 @@ function preview_image(event)
                         <div class="pcoded-inner-content">
                             <!-- Main-body start -->
                             <div class="main-body">
-                                <div class="container">
-
-                            <p style="font-size:16px; color:red" align="center"> 	
-                           
-                           <p style="font-size:16px; color:red" align="center"> 
-                           
-                                       <?php if($msg){
+                                <div class="page-wrapper">
+                                    <!-- Page-body start -->
+                                    <div class="page-body">
+                                        <div class="row">
+                                            <!-- task, page, download counter  start -->
+                                            <div class="container">
+                                           
+                                           <p style="color:red"><?php if($msg){
                                                       echo $msg;
                                                           }  ?> </p>						
                             
                             <?php
                             $userid=$_SESSION['id'];
-                            $ret=mysqli_query($con,"select * from register where id='$id'");
+                            $ret=mysqli_query($con,"select * from income where id='$id'");
                             $cnt=1;
                             while ($row=mysqli_fetch_array($ret)) {
                             ?>
 
-
-                            <form role="form" method="post" action="" enctype="multipart\form-data">
-
-                            <div class="form-group">
-                            <?php
- 
-                                // if(isset($_POST['upload'])){
-                                //     $name = $_FILES['file']['name'];
-                                //     $target_dir = "profileimage/";
-                                //     $target_file = $target_dir.($_FILES["file"]["name"]);
-
-                                //     // Select file type
-                                //     $imageFileType = strtolower(pathinfo($target_file,PATHINFO_EXTENSION));
-
-                                //     // Valid file extensions
-                                //     $extensions_arr = array("jpg","jpeg","png","gif");
-
-                                //     // Check extension
-                                //     if( in_array($imageFileType,$extensions_arr) ){
-                                        
-                                //         // Upload file
-                                //         if(move_uploaded_file($_FILES['file']['tmp_name'],'profileimage/'.$name)){
-                                //             // Convert to base64 
-
-                                //             // Insert record
-                                //             $query = "insert into register(photo) values('".$name."')";
-                                        
-                                //             mysqli_query($con,$query) or die(mysqli_error($con));
-                                //         }
-
-                                //     }
-                                
-                                // }
-                                ?>
-                            <label>Choose Profile Picture</label><br>
-                            
+                                            <form method="post" action="#">
+                <h3>Update Income Details</h3><br>
+                  <div class="row">
+                    <div class="col-md-4 pr-md-1">
+                      <div class="form-group">
+                        <label>Date</label>
+                        <?php
+                                    $id=$_SESSION['id'];
+                                    $ret=mysqli_query($con,"select date from income where id='$id'");
+                                    $row=mysqli_fetch_array($ret);
+                                    $name=$row['date'];
+                                    
+                                    ?>
+                        <input type="date" name="date" class="form-control"   value="<?php  echo $row['date'];?>" required>
+                      </div>
+                    </div>
+                    <div class="col-md-4 pr-md-1">
+                      <div class="form-group">
+                        <label>Source</label>
+                        <?php
+                                    $id=$_SESSION['id'];
+                                    $ret=mysqli_query($con,"select source from income where id='$id'");
+                                    $row=mysqli_fetch_array($ret);
+                                    $name=$row['source'];
+                                    
+                                    ?>
+                        <input type="text" name="source" class="form-control" placeholder="Enter Income Source"  value="<?php  echo $row['source'];?>" required>
+                      </div>
+                    </div>
+                    <div class="col-md-4 px-md-1">
+                      <div class="form-group">
+                        <label>Amount</label>
+                        <?php
+                                    $id=$_SESSION['id'];
+                                    $ret=mysqli_query($con,"select amount from income where id='$id'");
+                                    $row=mysqli_fetch_array($ret);
+                                    $name=$row['amount'];
+                                    
+                                    ?>
+                        <input type="text" name="amount" class="form-control" value="<?php  echo $row['amount'];?>" placeholder="Enter Income Amount" required>
+                      </div>
+                    </div>
+                    
+                  </div>
                  
-                            <input type="file" name="photo" accept="image/png, image/gif, image/jpeg, image/jpg"  onchange="preview_image(event)" required/>
+                    <div class="card-footer">
+                <button type="submit" name="submit" class="btn btn-fill btn-primary">Update</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+              </div>
+            </div>
+                </form>
 
-                            <img id="output_image" style="width:90px ;height:90px; border-radius: 50%;" alt="Profile Photo">
-                            
-                        </div>
-								<div class="form-group">
-									<label>Name</label>
-                                    <?php
-                                    $id=$_SESSION['id'];
-                                    $ret=mysqli_query($con,"select name from register where id='$id'");
-                                    $row=mysqli_fetch_array($ret);
-                                    $name=$row['name'];
-                                    ?>
-
-									<input class="form-control" id="name" type="text" value="<?php  echo $row['name'];?>" name="name" pattern="[ .a-zA-Z]+" onkeyup="this.value = this.value.toUpperCase();" required>
-								</div>
-
-
-                                <div class="form-group">
-									<label>Date of Birth</label>
-                                    <?php
-                                    $id=$_SESSION['id'];
-                                    $ret=mysqli_query($con,"select dob from register where id='$id'");
-                                    $row=mysqli_fetch_array($ret);
-                                    $dob=$row['dob'];
-                                    ?>
-                                    <!-- date('Y-m-d',strtotime($_POST['dob'])) -->
-									<input class="form-control"  id="dateofbirth" type="text"   value="<?php  echo $row['dob'];?>" name="dob" required>
-								</div>
-
-
-								<div class="form-group">
-									<label>Age</label>
-                                    <?php
-                                    $id=$_SESSION['id'];
-                                    $ret=mysqli_query($con,"select age from register where id='$id'");
-                                    $row=mysqli_fetch_array($ret);
-                                    $age=$row['age'];
-                                    
-                                    ?>
-                            <input type="number" class="form-control" name="age" id="age" value="<?php  echo $row['age'] ;?>" readonly>
-								</div>
-
-
-
-
-								<div class="form-group">
-									<label>Email</label>
-                                    <?php
-                                    $id=$_SESSION['id'];
-                                    $ret=mysqli_query($con,"select email from register where id='$id'");
-                                    $row=mysqli_fetch_array($ret);
-                                    $name=$row['email'];
-                                    
-                                    ?>
-                            <input type="email" class="form-control" name="email" value="<?php  echo $row['email'];?>" required>
-								</div>
-								
-								<div class="form-group">
-									<label>Mobile Number</label>
-                                    <?php
-                                    $id=$_SESSION['id'];
-                                    $ret=mysqli_query($con,"select mobile from register where id='$id'");
-                                    $row=mysqli_fetch_array($ret);
-                                    $name=$row['mobile'];
-                                    ?>
-									<input class="form-control" type="text" value="<?php  echo $row['mobile'];?>" name="mobile" pattern="^[6-9]\d{9}$" onkeypress="return event.charCode >= 48 && event.charCode <= 57" required>
-								</div>
-
-
-
-                                <div class="form-group">
-									<label>Address</label>
-                                    <?php
-                                    $id=$_SESSION['id'];
-                                    $ret=mysqli_query($con,"select address from register where id='$id'");
-                                    $row=mysqli_fetch_array($ret);
-                                    $address=$row['address'];                                   
-                                    ?>
-									<textarea type="text" class="form-control" name="address" maxlength="196" required><?php  echo $row['address'];?></textarea>
-                                </div>
-
-
-
-
-                                <!-- <div class="form-group">
-									<label>Password (Please change your password each time visit to profile page compulsory.)</label>
-                                    <?php
-                                    // $id=$_SESSION['id'];
-                                    // $ret=mysqli_query($con,"select password from register where id='$id'");
-                                    // $row=mysqli_fetch_array($ret);
-                                    // $name=$row['password'];
-                                    ?>
-                                    
-									<input class="form-control" type="password" required="true" name="password">
-								</div> -->
-                                
-
-								
-								<div class="form-group has-success">
-									<button type="submit" class="btn btn-primary" name="submit">Update</button>
-								</div>
-								
-								
-								</div>
-								<?php } ?>
-							</form><script type="text/javascript" src="validation.js"></script>
-                            <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
-
-                                <!-- <div class="page-wrapper"> -->
-                                    <!-- Page-body start -->
-                                    <!-- <div class="page-body">
-                                        <div class="row"> -->
-                                            <!-- task, page, download counter  start -->
-                                            <!-- <div class="col-xl-6 col-md-6">
-                                                <div class="card">
-                                                    <div class="card-block">
-                                                        <div class="row align-items-center">
-                                                            <div class="col-8">
-                                                                <h4 class="text-c-purple"><?php /*echo $todayincome;*/ ?></h4>
-                                                                <h6 class="text-muted m-b-0">Today Income</h6>
-                                                             </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="card-footer bg-c-purple">
-                                                        <div class="row align-items-center">
-                                                            <div class="col-9">
-                                                                <p class="text-white m-b-0"></p>
-                                                             </div>
-                                                        </div>
-            
-                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div class="col-xl-6 col-md-6">
-                                                <div class="card">
-                                                    <div class="card-block">
-                                                        <div class="row align-items-center">
-                                                            <div class="col-8">
-                                                                <h4 class="text-c-green"><?php /*echo $todayexpense;*/ ?></h4>
-                                                                <h6 class="text-muted m-b-0">Today Expense</h6>
                                                             </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="card-footer bg-c-green">
-                                                        <div class="row align-items-center">
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="col-xl-6 col-md-6">
-                                                <div class="card">
-                                                    <div class="card-block">
-                                                        <div class="row align-items-center">
-                                                            <div class="col-8">
-                                                                <h4 class="text-c-purple"><?php /*echo $monthincome;*/ ?></h4>
-                                                                <h6 class="text-muted m-b-0">Income in this month</h6>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="card-footer bg-c-purple">
-                                                        <div class="row align-items-center">
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-xl-6 col-md-6">
-                                                <div class="card">
-                                                    <div class="card-block">
-                                                        <div class="row align-items-center">
-                                                            <div class="col-8">
-                                                                <h4 class="text-c-green"><?php /*echo $monthexpense; */?></h4>
-                                                                <h6 class="text-muted m-b-0">Expense in this month</h6>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="card-footer bg-c-green">
-                                                        <div class="row align-items-center">
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-xl-6 col-md-6">
-                                                <div class="card">
-                                                    <div class="card-block">
-                                                        <div class="row align-items-center">
-                                                            <div class="col-8">
-                                                                <h4 class="text-c-purple"><?php /*echo $monthexpense;*/ ?></h4>
-                                                                <h6 class="text-muted m-b-0">Expense in this month</h6>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="card-footer bg-c-purple">
-                                                        <div class="row align-items-center">
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-xl-6 col-md-6">
-                                                <div class="card">
-                                                    <div class="card-block">
-                                                        <div class="row align-items-center">
-                                                            <div class="col-8">
-                                                                <h4 class="text-c-green"><?php /*echo $monthexpense;*/ ?></h4>
-                                                                <h6 class="text-muted m-b-0">Expense in this month</h6>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="card-footer bg-c-green">
-                                                        <div class="row align-items-center">
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div> -->
                                             <!-- task, page, download counter  end -->
     
                                             <!--  sale analytics start -->
@@ -1123,7 +872,10 @@ function preview_image(event)
     
     <!-- Warning Section Starts -->
 
- 
+    <?php if(isset($_GET['error'])){
+			                    echo $_GET['error'];
+		                           }
+		                ?>
     <!-- Older IE warning message -->
     <!--[if lt IE 10]>
     <div class="ie-warning">
@@ -1167,6 +919,7 @@ function preview_image(event)
     </div>
     <![endif]-->
     <!-- Warning Section Ends -->
+
     
     <!-- Required Jquery -->
     <script type="text/javascript" src="assets/js/jquery/jquery.min.js"></script>
@@ -1199,5 +952,5 @@ function preview_image(event)
     <script type="text/javascript" src="assets/pages/dashboard/custom-dashboard.js"></script>
     <script type="text/javascript" src="assets/js/script.js "></script>
 </body>
-<?php };?>
+<?php }};?>
 </html>

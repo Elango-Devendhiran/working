@@ -1,34 +1,8 @@
 <?php
-include 'connection.php';
+include("connection.php");
 session_start();
-if(isset($_POST['submit']))
-{
-	$name = $_POST['name'];
-	$email= $_POST['email'];
-	$mobile= $_POST['mobile'];
-	$password= md5($_POST['password']);
-	
-    
-$query= mysqli_query($con,"SELECT * FROM register WHERE mobile='$mobile' or email='$email'");
-if (mysqli_num_rows($query)>0)
-{
-    echo "<script>alert('The mobile number or email id is already registered.')</script>";
-}
-else{
-
-	$sql = "insert into register (name,email,mobile,password) values ('".$name."','".$email."','".$mobile."','".$password."')";
-	$result = mysqli_query($con,$sql);
-	if ($result){
-		//echo"Data Stored Successfully";
-     header('location:index.php');
-	}
-	else{
-		die(mysqli_error($con));
-	}
-}
-}
+use PHPMailer\PHPMailer\PHPMailer;
 ?>
-
 
 <!DOCTYPE html>
 <html lang="en">
@@ -65,9 +39,6 @@ else{
       <link rel="stylesheet" type="text/css" href="assets/icon/font-awesome/css/font-awesome.min.css">
       <!-- Style.css -->
       <link rel="stylesheet" type="text/css" href="assets/css/style.css">
-
-<!-- Icon for password -->
-      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
   </head>
 
   <body themebg-pattern="theme1">
@@ -132,73 +103,123 @@ else{
             <div class="row">
                 <div class="col-sm-12">
                     <!-- Authentication card start -->
+
+
+                    <?php
+                    include('connection.php');
+                    if (isset($_POST["email"]) && (!empty($_POST["email"]))) {
+                        $email = $_POST["email"];
+                        $email = filter_var($email, FILTER_SANITIZE_EMAIL);
+                        $email = filter_var($email, FILTER_VALIDATE_EMAIL);
+                        $error='';
+                        if (!$email) {
+                            $error .="Invalid email address";
+                        } else {
+                            $sel_query = "SELECT * FROM `register` WHERE email='" . $email . "'";
+                            $results = mysqli_query($con, $sel_query);
+                            $row = mysqli_num_rows($results);
+                            if ($row == "") {
+                                $error .= "User Not Found";
+                            }
+                        }
+                        if ($error != "") {
+                            echo $error;
+                        } else {
+
+                            $output = '';
+
+                            $expFormat = mktime(date("H"), date("i"), date("s"), date("m"), date("d") + 1, date("Y"));
+                            $expDate = date("Y-m-d H:i:s", $expFormat);
+                            $key = md5(time());
+                            $addKey = substr(md5(uniqid(rand(), 1)), 3, 10);
+                            $key = $key . $addKey;
+                            // Insert Temp Table
+                            mysqli_query($con, "INSERT INTO `password_reset_temp` (`email`, `key`, `expDate`) VALUES ('" . $email . "', '" . $key . "', '" . $expDate . "');");
+
+
+                            $output.='<p>Please click on the following link to reset your password.</p>';
+                            //replace the site url
+                            $output.= 'Hi';
+                            '<p><a href="http://localhost/tutorial/reset-password.php?key=' . $key . '&email=' . $email . '&action=reset" target="_blank">http://localhost/tutorial/reset-password.php?key=' . $key . '&email=' . $email . '&action=reset</a></p>';
+                            $body = $output;
+                            $subject = "Password Recovery";
+
+                            $email_to = $email;
+
+
+                            //autoload the PHPMailer
+                            require("vendor/autoload.php");
+                            $mail = new PHPMailer();
+                            $mail->IsSMTP();
+                            $mail->Mailer = "smtp";
+                            $mail->Host = "smtp.gmail.com"; // Enter your host here
+                            $mail->SMTPAuth = true;
+                            $mail->Username = "elangodevendhiran@gmail.com"; // Enter your email here
+                            $mail->Password = "Nethaji@1234"; //Enter your passwrod here
+                            $mail->Port = 25;
+                            $mail->IsHTML(true);
+                            $mail->From = "elangodevendhiran@gmail.com";
+                            $mail->FromName = "Elango";
+
+                            $mail->Subject = $subject;
+                            $mail->Body = $body;
+                            $mail->AddAddress($email_to);
+                            if (!$mail->Send()) {
+                                echo "Mailer Error: " . $mail->ErrorInfo;
+                            } else {
+                                echo "An email has been sent";
+                            }
+                        }
+                    }
+                    ?>
+
+
                     
-                        <form class="md-float-material form-material" method="post">
+                        <form class="md-float-material form-material" action="" method="post">
+                         <?php if(isset($_GET['error'])){
+			                    echo $_GET['error'];
+		                           }
+		                ?>
                             <div class="text-center">
                                 <img src="logo.jpg" height=50px width=150px alt="logo.png">
                             </div>
                             <div class="auth-box card">
                                 <div class="card-block">
-                                    <div class="row m-b-18">
+                                    <div class="row m-b-20">
                                         <div class="col-md-12">
-                                            <h3 class="text-center">Registration</h3>
+                                            <h3 class="text-center">Forgot Password</h3>
                                         </div>
                                     </div>
-
                                     <div class="form-group form-primary">
-                                        <input type="text" name="name" class="form-control" required="" pattern="[ .a-zA-Z]+" id="name"  title="Please enter only alphabets" onkeyup="this.value = this.value.toUpperCase();">
-                                        <!-- onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123)" -->
+                                        <input type="text" name="email" class="form-control" required="">
                                         <span class="form-bar"></span>
-                                        <label class="float-label">Name</label>
+                                        <label class="float-label" name="email">Your Email Address</label>
                                     </div>
-                                    <div class="form-group form-primary">
-                                        <input type="text" name="email" class="form-control" required="" pattern="[^@\s]+@[^@\s]+\.[^@\s]+"title="Enter a valid email address"/>
-                                        <span class="form-bar"></span>
-                                        <label class="float-label">Email</label>
-                                    </div>
-
-                                    <div class="form-group form-primary">
-                                        <input type="text" name="mobile" class="form-control" required="" pattern="^[6-9]\d{9}$" title="Please enter 10 digits" onkeypress='return event.charCode >= 48 && event.charCode <= 57'>
-                                        <span class="form-bar"></span>
-                                        <label class="float-label">Mobile</label>
-                                    </div>
-
-
-                                    <div class="form-group form-primary">
-                                        <input type="password" id="password" name="password" class="form-control" required=""  pattern="(?=.*[!@#$%^&*])(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,12}" title="Password must contain 1 - Uppercase, 1 - Lowercase, 1- Number and 1 - Special Character and password length must between 8-12 characters.">
-                                        <span class="form-bar"></span> 
-                                        <i style="position: absolute; top: 20px;left: 380px;"class="fa-solid fa-eye" id="show-password"></i>
-                                        <label class="float-label">Password</label>
-                                    </div>
-
-                                    <div class="form-group form-primary">
-                                        <input type="password" id="confirm_password" class="form-control" required="" title="Please enter valid password" />
-                                        <span class="form-bar"></span> 
-                                        <!-- <i style="position: absolute; top: 20px;left: 380px;"class="fa-solid fa-eye" id="show-password"></i> -->
-                                        <label class="float-label">Confirm Password</label>
-                                    </div>
-
-                                    <div class="row m-t-18 text-left">
+                                    
+                                    <div class="row m-t-25 text-left">
                                         <div class="col-12">
                                             
+                                            <div class="forgot-phone text-right f-right">
+                                                
+                                            </div>
                                         </div>
                                     </div>
                                     <div class="row m-t-30">
                                         <div class="col-md-12">
-                                            <button type="submit" name="submit"  class="btn btn-primary btn-md btn-block waves-effect waves-light text-center m-b-20">Register</button>
+                                            <button type="submit" name="password-reset" class="btn btn-primary btn-md btn-block waves-effect waves-light text-center m-b-20">Send Email</button>
                                         </div>
-                                        
                                     </div>
                                     <hr/>
+                                    <p class="text-inverse text-left">Click here to<a href="index.php" style="text-decoration:underline"> login</a></p>
+
                                     <div class="row">
                                         <div class="col-md-10">
-                                        <p class="text-inverse text-left">Already have an acccount? Please login <a href="index.php" style="text-decoration:underline"> Here</a></p>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </form>
-                        <!-- end of form-->
+                        <!-- end of form -->
                 </div>
                 <!-- end of col-sm-12 -->
             </div>
@@ -206,10 +227,6 @@ else{
         </div>
         <!-- end of container-fluid -->
     </section>
-
-          <!-- Form Validation -->
-          <script type="text/javascript" src="validation.js"></script>
-
     <!-- Warning Section Starts -->
     <!-- Older IE warning message -->
     <!--[if lt IE 10]>
@@ -268,12 +285,6 @@ else{
 <script type="text/javascript" src="bower_components/i18next-browser-languagedetector/js/i18nextBrowserLanguageDetector.min.js"></script>
 <script type="text/javascript" src="bower_components/jquery-i18next/js/jquery-i18next.min.js"></script>
 <script type="text/javascript" src="assets/js/common-pages.js"></script>
-<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
-<!-- email availability checking -->
-<!-- <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-<script type="text/javascript" src="ajax-script.js"></script> -->
 </body>
 
 </html>
-
-
